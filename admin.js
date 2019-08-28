@@ -1,0 +1,140 @@
+let galleryObject;
+
+$(function() {
+    if (!galleryObject && !localStorage.getItem("gallery")) {
+        $.getJSON("./data.json", function(data) {
+            //console.log(data);
+
+            galleryObject = data;
+            galleryObject = galleryObject && galleryObject.gallery ? galleryObject.gallery : null;
+            //console.log(galleryObject)
+            localStorage.setItem("gallery", JSON.stringify(data));
+            //console.log(localStorage.getItem("gallery"))
+
+            readGallery();
+        });
+    } else {
+        galleryObject = JSON.parse(localStorage.getItem("gallery"));
+        galleryObject = galleryObject && galleryObject.gallery ? galleryObject.gallery : null;
+        readGallery();
+    }
+
+});
+
+function readGallery() {
+    const gallery_holder = document.getElementById("images_placeholder");
+    if (!galleryObject || galleryObject.length == 0) {
+        gallery_holder.innerHTML = `<h5 class="no-images">No Images in Gallery to Edit</h5>`;
+        return;
+    }
+
+    let innerHTML = '<div class="row">';
+    galleryObject.forEach(element => {
+        innerHTML += `<div class="col-md-4">
+        <div class="card" id="${element.id}">
+            <img src="${element.url}" class="card-img-top" alt="${element.name}">
+            <div class="card-body">
+                <p class="card-text">${element.information}
+                </p>
+            </div>
+            <div class="card-footer">
+                <button class="btn btn-primary" data-toggle="modal" data-target="#editModal" data-id="${element.id}" data-type="edit">EDIT</button>
+                <button class="btn btn-danger float-right" data-toggle="modal" data-target="#deleteModal" data-id="${element.id}">DELETE</button>
+            </div>
+        </div>
+    </div>`;
+    });
+    innerHTML += '</div>';
+
+    gallery_holder.innerHTML = innerHTML;
+}
+
+
+let date = document.getElementById("image-date");
+
+date.addEventListener("input", function(event) {
+    console.log(date.value);
+    if (!date || (new Date(date.value)).getTime() > (new Date()).getTime()) {
+        date.setCustomValidity("Please do not enter the future date.");
+    } else {
+        date.setCustomValidity("");
+    }
+});
+
+function deleteObject(id) {
+    id = parseInt(id);
+    galleryObject = galleryObject.filter(obj => obj.id != id);
+    localStorage.setItem("gallery", JSON.stringify({ gallery: galleryObject }));
+    location.reload();
+}
+
+$('#deleteModal').on('show.bs.modal', function(event) {
+    var button = $(event.relatedTarget)
+    var id = parseInt(button.data('id'))
+
+    var modal = $(this)
+    console.log(galleryObject, id)
+    console.log(galleryObject.find(obj => obj.id == id))
+    modal.find('#deleteImagePlaceholder').attr('src', galleryObject.find(obj => obj.id == id).url);
+    modal.find("#deleteSubmit").attr("onclick", `deleteObject(${id})`);
+})
+
+$('#editModal').on('show.bs.modal', function(event) {
+    var button = $(event.relatedTarget)
+    var object = galleryObject.find(obj => obj.id == parseInt(button.data('id')))
+    var modal = $(this)
+    if (object) {
+        var date = new Date(object.date);
+        console.log(date)
+        var day = ("0" + date.getDate()).slice(-2);
+        var month = ("0" + (date.getMonth() + 1)).slice(-2);
+
+        var date_formatted = date.getFullYear() + "-" + (month) + "-" + (day);
+
+        console.log(date_formatted)
+        modal.find("#image-id").val(object.id);
+        modal.find("#image-name").val(object.name)
+        modal.find("#image-url").val(object.url)
+        modal.find("#image-date").val(object.date != null && date_formatted)
+        modal.find("#image-information").text(object.information)
+    } else {
+        modal.find("#image-id").val(null);
+        modal.find("#image-name").val(null)
+        modal.find("#image-url").val(null)
+        modal.find("#image-date").val(null)
+        modal.find("#image-information").text(null)
+
+    }
+
+})
+
+$("#editForm").submit(function(event) {
+    const id = parseInt($("#image-id").val())
+    const name = $("#image-name").val();
+    const information = $("#image-information").val();
+    const date = $("#image-date").val();
+    const url = $("#image-url").val();
+    console.log(id, name, information, date)
+    galleryObject.map(obj => {
+        if (obj.id == id) {
+            obj.name = name;
+            obj.information = information;
+            obj.date = (new Date(date)).getTime();
+            obj.url = url;
+            console.log(obj)
+        }
+    })
+    if (!id) {
+        galleryObject.push({
+            id: (new Date()).getTime(),
+            name,
+            information,
+            url,
+            date: (new Date(date)).getTime()
+        })
+        console.log("inside");
+    }
+    localStorage.setItem("gallery", JSON.stringify({ gallery: galleryObject }))
+    event.preventDefault();
+    location.reload();
+})

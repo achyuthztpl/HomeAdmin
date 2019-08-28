@@ -27,6 +27,38 @@ body {
     margin-top: 5em;
 }
 
+.flex-col {
+    display: flex;
+    flex-flow: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.flex-col hr {
+    width: 50vw;
+}
+
+.flex-col button {
+    margin-bottom: 0.7em;
+}
+
+.flex-col span {
+    position: relative;
+    padding: 0 1em;
+    margin-top: -1.7em;
+    color: #b3d7ff;
+    background-color: #f8f9fa;
+}
+
+.flex-col h6 {
+    margin: 0.7em 0
+}
+
+.no-images {
+    text-align: center;
+    color: indianred;
+}
+
 .form {
     margin: 0 1em;
     margin-top: 8em;
@@ -38,4 +70,12 @@ body {
 
 .card {
     margin-bottom: 1em;
+}
+
+.custom-modal-body {
+    text-align: center;
+}
+
+.custom-modal-footer {
+    justify-content: center
 }
