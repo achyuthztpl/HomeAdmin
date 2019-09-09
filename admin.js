@@ -21,6 +21,21 @@ $(function() {
 
 });
 
+function getDivWithClass(className) {
+    let div = document.createElement("div");
+    div.className = className;
+    return div;
+}
+
+function getButtonWithNameAndAttrs(name, attrObj) {
+    let button = document.createElement("button");
+    for (const [key, value] of Object.entries(attrObj)) {
+        button.setAttribute(key, value);
+    }
+    button.textContent = name;
+    return button;
+}
+
 function readGallery() {
     const gallery_holder = document.getElementById("images_placeholder");
     if (!galleryObject || galleryObject.length == 0) {
@@ -28,25 +43,58 @@ function readGallery() {
         return;
     }
 
-    let innerHTML = '<div class="row">';
+    let innerObj = getDivWithClass("row");
+    //let innerHTML = '<div class="row">';
     galleryObject.forEach(element => {
-        innerHTML += `<div class="col-md-4">
+        let colChild = getDivWithClass("col-md-4");
+        let cardObj = getDivWithClass("card");
+        cardObj.id = element.id;
+        let imgObj = document.createElement("img");
+        imgObj.src = element.url;
+        imgObj.className = "card-img-top";
+        imgObj.alt = element.name;
+        cardObj.appendChild(imgObj);
+        let cardBodyObj = getDivWithClass("card-body");
+        let cardBodyTextObj = document.createElement("p");
+        cardBodyTextObj.className = "card-text";
+        cardBodyTextObj.textContent = element.information;
+        cardBodyObj.appendChild(cardBodyTextObj);
+        cardObj.appendChild(cardBodyObj);
+        let cardFooterObj = getDivWithClass("card-footer");
+        cardFooterObj.appendChild(getButtonWithNameAndAttrs("EDIT", {
+            "class": "btn btn-primary",
+            "data-toggle": "modal",
+            "data-target": "#editModal",
+            "data-id": element.id,
+            "data-type": "edit"
+        }))
+        cardFooterObj.appendChild(getButtonWithNameAndAttrs("DELETE", {
+            "class": "btn btn-danger float-right",
+            "data-toggle": "modal",
+            "data-target": "#deleteModal",
+            "data-id": element.id
+        }))
+        cardObj.appendChild(cardFooterObj);
+        colChild.appendChild(cardObj);
+        innerObj.appendChild(colChild);
+        /* innerHTML += `<div class="col-md-4">
         <div class="card" id="${element.id}">
-            <img src="${element.url}" class="card-img-top" alt="${element.name}">
-            <div class="card-body">
-                <p class="card-text">${element.information}
-                </p>
+                <img src="${element.url}" class="card-img-top" alt="${element.name}">
+                <div class="card-body">
+                    <p class="card-text">${element.information}
+                    </p>
+                </div>
+                <div class="card-footer">
+                    <button class="btn btn-primary" data-toggle="modal" data-target="#editModal" data-id="${element.id}" data-type="edit">EDIT</button>
+                    <button class="btn btn-danger float-right" data-toggle="modal" data-target="#deleteModal" data-id="${element.id}">DELETE</button>
+                </div>
             </div>
-            <div class="card-footer">
-                <button class="btn btn-primary" data-toggle="modal" data-target="#editModal" data-id="${element.id}" data-type="edit">EDIT</button>
-                <button class="btn btn-danger float-right" data-toggle="modal" data-target="#deleteModal" data-id="${element.id}">DELETE</button>
-            </div>
-        </div>
-    </div>`;
+        </div>`; */
     });
-    innerHTML += '</div>';
+    //innerHTML += '</div>';
 
-    gallery_holder.innerHTML = innerHTML;
+    //gallery_holder.innerHTML = innerHTML;
+    gallery_holder.appendChild(innerObj);
 }
 
 
@@ -58,6 +106,19 @@ date.addEventListener("input", function(event) {
         date.setCustomValidity("Please do not enter the future date.");
     } else {
         date.setCustomValidity("");
+    }
+});
+
+let imgUrl = document.getElementById("image-url");
+
+imgUrl.addEventListener("input", function(event) {
+    console.log(imgUrl.validity);
+    if (imgUrl.validity.patternMismatch) {
+        console.log("inside1")
+        imgUrl.setCustomValidity("Please provide a valid URL.");
+    } else {
+        console.log("inside2")
+        imgUrl.setCustomValidity("");
     }
 });
 
@@ -121,18 +182,18 @@ $("#editForm").submit(function(event) {
             obj.information = information;
             obj.date = (new Date(date)).getTime();
             obj.url = url;
-            console.log(obj)
+            //console.log(obj)
         }
     })
     if (!id) {
         galleryObject.push({
-            id: (new Date()).getTime(),
-            name,
-            information,
-            url,
-            date: (new Date(date)).getTime()
-        })
-        console.log("inside");
+                id: (new Date()).getTime(),
+                name,
+                information,
+                url,
+                date: (new Date(date)).getTime()
+            })
+            //console.log("inside");
     }
     localStorage.setItem("gallery", JSON.stringify({ gallery: galleryObject }))
     event.preventDefault();

@@ -68,7 +68,7 @@
                         </div>
                         <div class="form-group">
                             <label for="image-url" class="col-form-label">URL:</label>
-                            <input type="text" class="form-control" id="image-url" required>
+                            <input type="text" class="form-control" id="image-url" pattern="^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:/?#[\]@!\$&'\(\)\*\+,;=.]+$" required>
                         </div>
                         <div class="form-group">
                             <label for="image-date" class="col-form-label">Uploaded Date:</label>
@@ -114,4 +114,4 @@
     <script src="./admin.js"></script>
 </body>
 
-</ht
+</html>
