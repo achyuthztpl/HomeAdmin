@@ -79,3 +79,16 @@ body {
 .custom-modal-footer {
     justify-content: center
 }
+
+.media div h5 {
+    font-weight: bold;
+}
+
+.media div p {
+    font-family: Times New Roman, Georgia, serif;
+}
+
+.about h2 {
+    font-weight: bold;
+    font-family: Times New Roman, Georgia, serif;
+}
